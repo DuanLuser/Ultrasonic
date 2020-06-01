@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    {% block title %}
+    {% endblock title %}
+
+    <link href="https://cdn.bootcss.com/font-awesome/5.12.1/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/admin-lte/3.0.2/css/adminlte.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/toastr.js/2.1.4/toastr.min.css" rel="stylesheet">
+
+    {% block css %}
+    {% endblock css %}
+</head>
+
+<body class="hold-transition layout-top-nav">
+    <div class="wrapper">
+
+        <!-- Navbar -->
+        <nav class="main-header navbar navbar-expand-md navbar-light navbar-white">
+            <div class="container">
+                <a href="{% url 'index' %}" class="navbar-brand">
+                    {% block brandtext %}
+                    <span class="brand-text font-weight-light">监控 - 障碍物检测控制面板</span>
+                    {% endblock brandtext %}
+                </a>
+            </div>
+        </nav>
+        <!-- /.navbar -->
+
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+
+            <section class="content-header">
+                {% block content_header %}
+                <div class="container"></div>
+                {% endblock content_header %}
+            </section>
+            <!-- /.content-header -->
+
+            <!-- Main content -->
+            <section class="content">
+                {% block content %}
+                {% endblock content %}
+            </section>
+            <!-- /.content -->
+        </div>
+        <!-- /.content-wrapper -->
+    </div>
+
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/twitter-bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.bootcss.com/admin-lte/3.0.2/js/adminlte.min.js"></script>
+    <script src="https://cdn.bootcss.com/toastr.js/2.1.4/toastr.min.js"></script>
+    <script src="https://cdn.bootcss.com/echarts/4.6.0/echarts.min.js"></script>
+    {% block js %}
+    {% endblock js %}
+</body>
+
+</html>

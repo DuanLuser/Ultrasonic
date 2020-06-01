@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>登录</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.bootcss.com/font-awesome/5.12.1/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/admin-lte/3.0.2/css/adminlte.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/toastr.js/2.1.4/toastr.min.css" rel="stylesheet">
+</head>
+
+<body class="hold-transition login-page">
+
+    <div class="login-box">
+        <div class="login-logo mb-4">
+            <i class="fas fa-cogs mb-3" aria-hidden="true" style="font-size:8rem;"></i>
+            <h1>室内检测系统 登录</h1>
+        </div>
+        <!-- /.login-logo -->
+        <div class="card">
+            <div class="card-body login-card-body">
+                {% if message %}
+                <p class="login-box-msg text-red">{{message}}</p>
+                {% else %}
+                <p class="login-box-msg">请登录系统</p>
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="用户名" name="username">
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-user"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input type="password" class="form-control" placeholder="密码" name="password">
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-lock"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="icheck-primary">
+                                <input type="checkbox" id="remember">
+                                <label for="remember">
+                                    Remember Me
+                                </label>
+                            </div>
+                        </div>
+                        <!-- /.col -->
+                        <div class="col-4">
+                            <button type="submit" class="btn btn-primary btn-block">登录</button>
+                        </div>
+                        <!-- /.col -->
+                    </div>
+                </form>
+                <p class="my-1">
+                    <!--a href="#">管理员后台入口</a-->
+                    <!--<a href="/admin">管理员后台入口</a>-->
+                </p>
+                <!-- <p class="my-1">
+                    <a href="forgot-password.html">忘记密码</a>
+                </p>
+                <p class="mb-0">
+                    <a href="register.html" class="text-center">注册</a>
+                </p> -->
+            </div>
+            <!-- /.login-card-body -->
+        </div>
+    </div>
+    <!-- /.login-box -->
+
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/twitter-bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.bootcss.com/admin-lte/3.0.2/js/adminlte.min.js"></script>
+    <script src="https://cdn.bootcss.com/toastr.js/2.1.4/toastr.min.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}
+<title>首页 - 超声波室内障碍物检测系统</title>
+{% endblock title %}
+
+{% block content_header %}
+<!--span class="h2">设备列表</span-->
+{% endblock content_header %}
+
+{% block content %}
+<!-- 卡片式布局 -->
+<div id='Card'>
+ <div class="row d-flex align-items-stretch">
+    {% for device in device_list %}
+    <div class="col-12 col-sm-6 col-md-4 align-items-stretch">
+        {% if device.outcome != 'nonempty' %}
+        <div class="card card-primary card-outline m-2">
+	{% else %}
+	<div class="card card-primary card-outline m-2" style="background-color:#FFD2D2">
+	{% endif %}
+        <!--div class="card card-primary card-outline m-2"-->
+            <div class="card-header text-muted border-bottom-0">
+                <h5 class="m-0">
+                    <span class="badge badge-primary" >#{{device.device_id}}</span>
+
+                    {% if device.device_status == 'online' and  device.outcome != 'nonempty' %}
+                    <span class="float-right badge badge-success">在线</span>
+                    {% elif device.device_status == 'online' and  device.outcome == 'nonempty' %}
+                    <span class="float-right badge badge-success">在线</span>
+                    {% elif device.device_status == 'offline' %}
+                    <span class="float-right badge badge-secondary">离线</span>
+                    {% elif device.device_status == 'malfunction' %}
+                    <span class="float-right badge badge-danger">故障</span>
+                    {% endif %}    
+                </h5>
+                <p class="mt-1 mb-0"><small>上次在线：{{device.last_online_time | date:"Y-m-d H:i:s"}}</small></p>
+            </div>
+
+            <div class="card-body py-1">
+                <ul class="list-unstyled">
+                    <li><b>设备编号：</b> {{device.device_id}}</li>
+                    <li><b>检测结果：</b>
+                    {% if device.outcome == 'default' or device.device_status == 'offline' %} 
+                    暂无结果
+                    {% elif device.outcome == 'nonempty' %} 
+                    有新增物体!
+                    {% elif device.outcome == 'empty' %} 
+                    没有新增物体
+                    {% endif %}</li>
+                    <li><b>监管区域：</b> {{device.device_name}}</li>
+                </ul>
+            </div>
+            <!-- /.card-body -->
+            <div class="card-footer">
+                <div class="text-right">
+                    <a class="btn btn-sm btn-primary" href="{% url 'device_detail' device.device_id %}">详细信息</a>
+                    <a class="btn btn-sm btn-primary" href="{% url 'logs_detail' device.device_id %}">日志</a>
+                </div>
+            </div>
+            <!-- /.card-footer-->
+        </div>
+        <!-- /.card -->
+    </div>
+    {% endfor %} 
+ </div>
+ <script>
+     function setfresh() { 
+       $("#Card").load(location.href + " #Card");
+       //console.log(1);
+     }
+     setInterval(setfresh, 3000)
+ </script>
+</div>
+
+{% endblock content %}

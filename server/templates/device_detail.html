@@ -1,0 +1,79 @@
+{% extends "base_detail.html" %}
+{% load static %}
+
+{% block title %}
+<title>首页 - 超声波室内障碍物检测系统</title>
+{% endblock title %}
+
+
+{% block css %}
+<style>
+    .chart {
+        width: 100%;
+        height: 600px;
+    }
+
+    .form-group {
+        margin-bottom: 0.5rem;
+    }
+</style>
+{% endblock css %}
+
+{% block brandtext %}
+<span class="brand-text font-weight-light">监控 - 障碍物检测控制面板</span>
+<a href="{% url 'logs_detail' device.device_id %}">日志</a>
+{% endblock brandtext %}
+
+{% block content_header %}
+<div class="container">
+    <!-- Alert -->
+    <div id="alert_wrapper"></div>
+</div>
+
+<div class="container">
+    <!-- Alert -->
+    <div id="alert_wrapper"></div>
+    <div class="card">
+        <div class="card-header">
+            <span style="line-height:30px;" class="ml-2">
+                <a class="h4">{{device.device_name}}</a>
+            </span>
+            <span>
+            <!--a style="float:right; line-height:30px;" href="{% url 'reset' device.device_id %}">重置</a-->
+            </span>
+        </div>
+        <div class="card-body py-3">
+            <form class="form-horizontal">
+                <div class="form-group row">
+                    <label for="distance" class="col-4 col-sm-2 col-form-label">物体距离</label>
+                    <div class="col-8 col-sm-10">
+                        <div class="form-control-plaintext" id="distance"></div>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="angle" class="col-4 col-sm-2 col-form-label">检测方向</label>
+                    <div class="col-8 col-sm-10">
+                        <div class="form-control-plaintext" id="angle"></div>
+                    </div>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+{% endblock content_header %}
+
+{% block content %}
+<!--画图-->
+<div class="container" id="chart-wrapper">
+</div>
+
+{% endblock content %}
+
+{% block js %}
+<script src="https://cdn.bootcss.com/echarts/4.6.0/echarts.min.js"></script>
+<script src="{% static 'server/detail.js' %}"></script>
+{% endblock js %}
