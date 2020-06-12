@@ -103,12 +103,12 @@ function initChart(element, id) {
             position: pt => [pt[0], '10%'],
         },*/
         polar: { show:true },
-        tooltip: {
+        /*tooltip: {
             trigger: 'axis',
             axisPointer: {
                 type: 'cross'
             }
-        },
+        },*/
         angleAxis: {
             max: 360,
             type: 'value',
@@ -120,14 +120,33 @@ function initChart(element, id) {
         radiusAxis: {
             max: 3,
         },
-        series: [{
+        series: [{ //暂定五个物体
             startAngle: 180,
             coordinateSystem: 'polar',
             //name: 'line',
             type: 'line',
 	    show:false,
-            data: [[0,0],[0,0]],
-            
+            //data: [[0,0],[0,0]],
+        },{
+            startAngle: 180,
+            coordinateSystem: 'polar',
+            type: 'line',
+	    show:false,
+        },{
+            startAngle: 180,
+            coordinateSystem: 'polar',
+            type: 'line',
+	    show:false,
+        },{
+            startAngle: 180,
+            coordinateSystem: 'polar',
+            type: 'line',
+	    show:false,
+        },{
+            startAngle: 180,
+            coordinateSystem: 'polar',
+            type: 'line',
+	    show:false,
         }],
         //animationDuration: 2000
     });
@@ -175,8 +194,8 @@ function getOutcome() {
         if (response.length > 0) {	
             if (response[0].device_status == 'online') {
                 LastOutcome = 1;
-                document.getElementById("distance").innerText="检测中...";
-                document.getElementById("angle").innerText="检测中...";
+                document.getElementById("status").innerText="检测中...";
+                document.getElementById("obstacle").innerText="无相关参数";
             }
             else
                 LastOutcome = -1;
@@ -185,44 +204,65 @@ function getOutcome() {
         if (LastOutcome != -1) {
             distance=response[0].distance;
             angle=response[0].angle;
-            if (distance != '' && distance != '0.00m') {
+            if (distance != "") {
                 console.log(angle,distance);
-                c=0;
-                d=parseFloat(distance.substring(0,4));
-		minAngle=parseInt(angle.substring(0,3));
-                maxAngle=parseInt(angle.substring(4,7));
-                document.getElementById("distance").innerText="距离监测点 "+distance;
-		document.getElementById("angle").innerText="位于监测点 "+String(minAngle)+"-"+String(maxAngle)+"° 的方向上";
+                c = 0;
+                obstacle_num=parseInt(angle.substring(angle.length-1,angle.length));
+                var d = [0, 0, 0, 0, 0];
+                var minAngle = [0, 0, 0, 0, 0];
+                var maxAngle = [0, 0, 0, 0, 0];
+                str = "";
+                for(i=0; i< obstacle_num; i++) {
+                    d[i] = parseFloat(distance.substring(i*5,4+i*5));
+                    minAngle[i] = parseInt(angle.substring(i*8,3+i*8));
+                    maxAngle[i] = parseInt(angle.substring(4+i*8,7+i*8));
+                    str+="物体"+String(i+1)+" 角度："+String(minAngle[i])+"-"+String(maxAngle[i])+"°，距离："+String(d[i])+"m；";
+                }
+                document.getElementById("status").innerText="识别到新增障碍物";
+                document.getElementById("obstacle").innerText= str;
 		console.log(minAngle,maxAngle);
                 if(angle=="左侧") c=45;
                 else if(angle=="前方") c=90;
                 else if(angle=="右侧") c=135;
                 Charts[deviceId].setOption({
                 	series: [{
-                                startAngle: 180,
-            			data: [[d,minAngle],[d,maxAngle]]
+            			data: [[d[0],minAngle[0]],[d[0],maxAngle[0]]]
                                 //[[d-0.1,c-3],[d+0.1,c+3],[d,c],[d+0.1,c-3],[d-0.1,c+3]]
-        		}],
+        		},
+                        { data: [[d[1],minAngle[1]],[d[1],maxAngle[1]]] },
+                        { data: [[d[2],minAngle[2]],[d[2],maxAngle[2]]] },
+                        { data: [[d[3],minAngle[3]],[d[3],maxAngle[3]]] },
+                        { data: [[d[4],minAngle[4]],[d[4],maxAngle[4]]] },
+                        ],
                 });
             }
-            else if (distance == '0.00m') {
-                document.getElementById("distance").innerText="目标区域空旷，无\"距离\"参数";
-                document.getElementById("angle").innerText="目标区域空旷，无\"方向\"参数"; 
+            else if (distance == "") {
+                document.getElementById("status").innerText="未识别到新增障碍物"; 
+                document.getElementById("obstacle").innerText="无相关参数"; 
                 Charts[deviceId].setOption({
                 	series: [{
             			data: [[0,0],[0,0]]
-        		}],
+        		},{data: [[0,0],[0,0]]},
+                          {data: [[0,0],[0,0]]},
+                          {data: [[0,0],[0,0]]},
+                          {data: [[0,0],[0,0]]},
+                        ],
                 });
             }
+            document.getElementById("alert_wrapper").innerHTML = null;
             
         } else  if (LastOutcome == -1){
-            document.getElementById("distance").innerText='';
-            document.getElementById("angle").innerText='';
+            document.getElementById("status").innerText="未进行检测";
+            document.getElementById("obstacle").innerText="无相关参数";
             showInfo("未检测到信号！设备未在线");
             Charts[deviceId].setOption({
                 series: [{
             		data: [[0,0],[0,0]],
-        	}],
+        	},{data: [[0,0],[0,0]]},
+                {data: [[0,0],[0,0]]},
+                {data: [[0,0],[0,0]]},
+                {data: [[0,0],[0,0]]},
+                ]
             });
         }
     });

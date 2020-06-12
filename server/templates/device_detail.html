@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}
-<title>首页 - 超声波室内障碍物检测系统</title>
+<title>首页 - 室内障碍物检测系统</title>
 {% endblock title %}
 
 
@@ -45,16 +45,30 @@
         <div class="card-body py-3">
             <form class="form-horizontal">
                 <div class="form-group row">
-                    <label for="distance" class="col-4 col-sm-2 col-form-label">物体距离</label>
+                    <label for="number" class="col-4 col-sm-2 col-form-label">设备编号</label>
                     <div class="col-8 col-sm-10">
-                        <div class="form-control-plaintext" id="distance"></div>
+                        <div class="form-control-plaintext" id="number">{{device.device_id}}</div>
+                    </div>
+                </div>
+
+	        <div class="form-group row">
+                    <label for="name" class="col-4 col-sm-2 col-form-label">设备名称</label>
+                    <div class="col-8 col-sm-10">
+                        <div class="form-control-plaintext" id="name">{{device.description}}</div>
                     </div>
                 </div>
 
                 <div class="form-group row">
-                    <label for="angle" class="col-4 col-sm-2 col-form-label">检测方向</label>
+                    <label for="status" class="col-4 col-sm-2 col-form-label">检测状态</label>
                     <div class="col-8 col-sm-10">
-                        <div class="form-control-plaintext" id="angle"></div>
+                        <div class="form-control-plaintext" id="status"></div>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="obstacle" class="col-4 col-sm-2 col-form-label">障碍物</label>
+                    <div class="col-8 col-sm-10">
+                        <div class="form-control-plaintext" id="obstacle"></div>
                     </div>
                 </div>
 

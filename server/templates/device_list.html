@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-<title>设备管理 - 超声波室内障碍物检测系统</title>
+<title>设备管理 - 室内障碍物检测系统</title>
 {% endblock title %}
 
 {% block content_header %}
@@ -9,8 +9,8 @@
 {% endblock content_header %}
 
 {% block content %}
-
-<div class="card">
+<div id='Card'>
+ <div class="card">
     <div class="card-header">
         <span style="float:left;" class="h4">
             <b>设备管理</b>
@@ -33,12 +33,14 @@
         <table class="table table-hover">
             <thead>
                 <tr>
-                    <th>设备ID</th>
-                    <th>监管区域</th>
-                    <th>描述</th>
-                    <th>创建时间</th>
-                    <th>上次在线</th>
+                    <th>编号</th>
+                    <th>设备名称</th>
+                    <th>型号</th>
                     <th>状态</th>
+                    <th>更新时间</th>
+                    <th>安装位置</th>
+                    <th>负责人</th>
+                    <th>联系电话</th>
                     <th>操作</th>
                 </tr>
             </thead>
@@ -46,27 +48,39 @@
                 {% for device in device_list %}
                 <tr>
                     <td>{{device.device_id}}</td>
-                    <td>{{device.device_name}}</td>
                     <td>{{device.description}}</td>
-                    <td>{{device.create_time | date:"Y/m/d H:i:s"}}</td>
-                    <td>{{device.last_online_time | date:"Y/m/d H:i:s"}}</td>
+                    <td>XXX</td>
                     <td>
-                        <p class="h5">
-                        {% if device.device_status == 'online' %}
-                        <span class="badge badge-success font-weight-normal">在线</span>
+                        <p class="h7">
+                        {% if device.device_status == 'online' and  device.outcome != 'nonempty' %}
+                        <a style="color:green">正常</a>
+                        {% elif device.device_status == 'online' and  device.outcome == 'nonempty' %}
+			<a href="{% url 'device_detail' device.device_id %}" style="color:#EA0000">警告</a>
                         {% elif device.device_status == 'offline' %}
-                        <span class="badge badge-secondary font-weight-normal">离线</span>
+                        <a style="color:grey">离线</a>
                         {% elif device.device_status == 'malfunction' %}
-                        <span class="badge badge-danger font-weight-normal">故障</span>
+                        <a>故障</a>
                         {% endif %}
-                    </p>
+                        </p>
                     </td>
-                    <td><a href="{% url 'device_detail' device.device_id %}">详情</a></td>
+                    <td>{{device.last_online_time | date:"Y/m/d H:i:s"}}</td>
+                    <td>{{device.device_name}}</td>
+                    <td>张某某</td>
+                    <td>13912345678</td>
+                    <td><a href="{% url 'logs_detail' device.device_id %}">日志</a></td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
     <!-- /.card-body -->
+     <script>
+         function setfresh() { 
+           $("#Card").load(location.href + " #Card");
+           //console.log(1);
+         }
+         setInterval(setfresh, 1000)
+     </script>
+ </div>
 </div>
 {% endblock content %}

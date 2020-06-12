@@ -6,9 +6,11 @@ from multiprocessing import Pool
 import django.utils.timezone as timezone
 
 portlist = [21566,21567,21568,21569,21570,21571]
-Info = ['设备上线', '设备离线', '设备已重置', '目标区域空旷', '有新增物体, 在', '物体被清理，目标区域空旷', '新增物体被移至']
-Angle = ['左侧','前方','右侧']
+Info = ['设备上线', '设备离线', '设备已重置', '目标区域空旷', '新增物体', '物体均被清理', ]
+
 online_time=timezone.now()
+
+#abs(prior_angle1-angle1)>5 or abs(prior_angle2-angle2)>5 or abs(cur_distance-prior_distance) > 0.10:
 
 def addLog(msg, device, level):
     log = Log()
@@ -24,6 +26,23 @@ def shutdown(device):
     device.distance=device.angle=''
     device.reset_status='no'
 
+def compareOut(prior_out,cur_out,site_num):
+    cur_equal = [0, 0, 0, 0, 0]
+    prior_equal = [0, 0, 0, 0, 0]
+    for i in range(0, site_num):
+        min_a=int(cur_out[i][0:3])
+        max_a=int(cur_out[i][4:7])
+        d=float(cur_out[i][8:12])
+        for t in range(0, 5):
+            if prior_out[t] != "0-0,-1" and prior_equal[t] == 0:
+                pmin_a=int(prior_out[t][0:3])
+                pmax_a=int(prior_out[t][4:7])
+                pd=float(prior_out[t][8:12])
+                if abs(pmin_a-min_a) <=3 and abs(pmax_a-max_a) <=3 and abs(pd-d)<0.10:
+                   cur_equal[i]=1
+                   prior_equal[t]=1
+                   break
+    return cur_equal, prior_equal
 
 def dealwith(server_port):
     server = server_port[0]
@@ -68,9 +87,9 @@ def dealwith(server_port):
                 count = 0
                 log_empty = False
                 log_nonempty = False
-                prior_distance = -1.00 ##
-                prior_angle1 = -1
-                prior_angle2 = -1
+                prior_out = ["0-0,-1","0-0,-1","0-0,-1","0-0,-1","0-0,-1"] #5
+                prior_num = 0
+
                 while data_d.decode() == 'detectOK':
                     data_o = conn.recv(1024)
                     print(data_o.decode())
@@ -82,60 +101,80 @@ def dealwith(server_port):
                         break  
 
                     out = data_o.decode()
-                    angle1 = 1  # default: 前方
-                    angle2 = 1
-                    distance = '0.00m'
+                    angle=""
+                    distance=""
+                    cur_out = ["","","","",""] # 5
+
+                    site_num=-1
                     nonempty_flag = False
                     if out=='empty' or out.index('nonempty')>=0 or out=='default':
                         display=out
                         if len(out)>8 and out.index('nonempty')>=0:
-                            angle1=int(out[9:12])
-                            angle2=int(out[13:16])
-                            distance=out[17:22]
+                            site_num=int(out[len(out)-1])
+                            if site_num > 5:
+                                site_num = 5
+                            for i in range(0,site_num):
+                                cur_out[i]=out[(9+i*14):(21+i*14)]
+                                angle+=cur_out[i][0:7]+","
+                                distance+=cur_out[i][8:12]+","
                             display='nonempty'
                             nonempty_flag = True
 
-                        device.angle=out[9:16]
+                        device.angle=angle+str(site_num)
                         device.distance=distance
                         device.outcome=display
                         device.save()
                         count += 1
                         if count ==1 and out=='empty':
                             addLog(Info[3], device, 'purpose')  # 
-                            prior_distance = -1.00 ##
-                            prior_angle1 = -1
-                            prior_angle2 = -1
+                            prior_out = ["0-0,-1","0-0,-1","0-0,-1","0-0,-1","0-0,-1"] #5
+                            prior_num = 0
                             log_empty = True
                         elif count ==1 and nonempty_flag == True:
-                            info = Info[4]+"角度为"+str(angle1)+'-'+str(angle2)+"°, 距离为"+distance
+                            info = "有"+str(site_num)+"个"+Info[4]
                             addLog(info, device, 'warning')  # 
-                            prior_distance = float(distance[0:4]) ##
-                            prior_angle1 = angle1
-                            prior_angle2 = angle2
+                            prior_out = ["0-0,-1","0-0,-1","0-0,-1","0-0,-1","0-0,-1"] #5
+                            for i in range(0,site_num):
+                                prior_out[i]=cur_out[i]
+                            prior_num = site_num
                             log_nonempty = True
                         elif count >1 and out=='empty' and log_nonempty == True:
-                            addLog(Info[5], device, 'purpose')  # 
-                            prior_distance = -1.00 ##
-                            prior_angle1 = -1
-                            prior_angle2 = -1
+                            addLog(Info[5]+"，"+Info[3], device, 'purpose')  # 
+                            prior_out = ["0-0,-1","0-0,-1","0-0,-1","0-0,-1","0-0,-1"] #5
+                            prior_num = 0
                             log_empty = True
                             log_nonempty = False
                         elif count >1 and nonempty_flag == True and log_empty == True:
-                            info = Info[4]+"角度为"+str(angle1)+'-'+str(angle2)+"°, 距离为"+distance
+                            info = info = "有"+str(site_num)+"个"+Info[4]
                             addLog(info, device, 'warning')  # 
-                            prior_distance = float(distance[0:4]) ##
-                            prior_angle1 = angle1
-                            prior_angle2 = angle2
+                            prior_out = ["0-0,-1","0-0,-1","0-0,-1","0-0,-1","0-0,-1"] #5
+                            for i in range(0,site_num):
+                                prior_out[i]=cur_out[i]
+                            prior_num = site_num
                             log_nonempty = True 
                             log_empty = False 
                         elif count >1 and nonempty_flag == True and log_nonempty == True:
-                            cur_distance = float(distance[0:4])
-                            if abs(prior_angle1-angle1)>5 or abs(prior_angle2-angle2)>5 or abs(cur_distance-prior_distance) > 0.10:
-                                info = Info[6]+"角度为"+str(angle1)+'-'+str(angle2)+"°, 距离为"+distance
+                            cur_equal, prior_equal=compareOut(prior_out, cur_out, site_num)
+                            new_add = 0
+                            old_minus = 0
+                            for i in range(0, site_num):
+                                if cur_equal[i]==0:
+                                    new_add+=1
+                            for i in range(0, 5):
+                                if prior_out[i]!="0-0,-1" and prior_equal[i]==0:
+                                    old_minus+=1
+                            if  new_add !=0 or old_minus !=0 :
+                                info = ""
+                                if new_add !=0:
+                                    info += "新增"+str(new_add)+"个，"
+                                if old_minus !=0:
+                                    info += "移走"+str(old_minus)+"个，"
+                                prior_num=prior_num+new_add-old_minus
+                                info += "目前存在"+str(prior_num)+"个新增物体"
                                 addLog(info, device, 'warning')  # 
-                                prior_distance = cur_distance
-                                prior_angle1 = angle1
-                                prior_angle2 = angle2
+                                prior_out = ["0-0,-1","0-0,-1","0-0,-1","0-0,-1","0-0,-1"] #5
+                                for i in range(0,site_num):
+                                    prior_out[i]=cur_out[i]
                                 log_nonempty = True 
                                 log_empty = False     
                              
@@ -153,7 +192,7 @@ def dealwith(server_port):
         device1 = Device.objects.get(pk=ID)
         shutdown(device1)
         if online_flag == True: 
-                device1.last_online_time = online_time
+            device1.last_online_time = online_time
         device1.save() 
         dealwith(server_port)
     
